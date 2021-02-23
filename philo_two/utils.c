@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:06:58 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 15:54:40 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 16:21:42 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void			print_msg(int status, t_philo *philo)
 	sem_post(philo->info->for_print);
 }
 
-int			check_args(int argc, char *argv[])
+int				check_args(int argc, char *argv[])
 {
 	int		idx_arg;
 	int		idx_chr;
@@ -77,7 +77,7 @@ int			check_args(int argc, char *argv[])
 	return (0);
 }
 
-void		free_machine(t_info *info)
+void			free_machine(t_info *info)
 {
 	int		idx;
 	int		end;

@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:06:58 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 14:57:48 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 16:20:32 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void			print_msg(int status, t_philo *philo)
 	sem_post(philo->info->for_print);
 }
 
-int			check_args(int argc, char *argv[])
+int				check_args(int argc, char *argv[])
 {
 	int		idx_arg;
 	int		idx_chr;
@@ -73,7 +73,7 @@ int			check_args(int argc, char *argv[])
 	return (0);
 }
 
-void		free_machine(t_info *info)
+void			free_machine(t_info *info)
 {
 	int		idx;
 	int		end;
@@ -87,10 +87,8 @@ void		free_machine(t_info *info)
 		kill(info->philos[idx].pid, SIGKILL);
 		sem_close(info->philos[idx].for_eat);
 		sem_unlink(info->philos[idx].for_eat_name);
-		// free(info->philos[idx].for_eat_name);
 		sem_close(info->philos[idx].for_full);
 		sem_unlink(info->philos[idx].for_full_name);
-		// free(info->philos[idx].for_full_name);
 		idx++;
 	}
 	free(info->philos);

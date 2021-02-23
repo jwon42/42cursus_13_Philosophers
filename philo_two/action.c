@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 17:55:12 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 13:03:45 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 16:21:11 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ int				start_dining(t_info *info)
 	info->time_start = get_time();
 	while (idx < info->num_philo)
 	{
-		if (pthread_create(&info->philos[idx].thread, NULL, routine, &info->philos[idx]))
+		if (pthread_create(&info->philos[idx].thread,
+					NULL, routine, &info->philos[idx]))
 			return (FAILURE);
 		idx++;
 	}

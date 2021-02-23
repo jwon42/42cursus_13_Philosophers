@@ -6,13 +6,13 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 15:44:40 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 15:52:38 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 16:17:03 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
-static int			init_mutexes(t_info *info)
+static int		init_mutexes(t_info *info)
 {
 	int		idx;
 
