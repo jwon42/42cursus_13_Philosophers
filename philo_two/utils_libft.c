@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:15:25 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/15 19:26:21 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 13:43:12 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@ int			ft_isdigit(int c)
 
 size_t		ft_strlen(const char *str)
 {
-	int		idx;
+	size_t		idx;
 
 	idx = 0;
-	while (str[idx])
+	while (str[idx] != '\0')
 		idx++;
 	return (idx);
 }
@@ -54,23 +54,24 @@ int			ft_atoi(const char *str)
 
 char		*ft_itoa(int n)
 {
-	int				len;
-	int				tmp;
 	char			*ret;
+	int				n_len;
+	int				tmp;
 
 	tmp = n;
-	len = 0;
+	n_len = 1;
 	while (tmp >= 10)
 	{
 		tmp = tmp / 10;
-		len++;
+		n_len++;
 	}
-	if (!(ret = (char *)malloc(sizeof(char) * (len + 1))))
+	if (!(ret = (char *)malloc(sizeof(char) * (n_len + 1))))
 		return (NULL);
-	while (len >= 0)
+	ret[n_len] = '\0';
+	while (n > 0)
 	{
-		ret[len--] = (n % 10) + '0';
-		n = n / 10;
+		ret[--n_len] = (n % 10) + '0';
+		n /= 10;
 	}
 	return (ret);
 }

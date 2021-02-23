@@ -6,76 +6,85 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 15:44:40 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/15 18:43:16 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 16:04:11 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_three.h"
 
-int					init_info(int argc, char *argv[], t_info *info)
+static int		init_sems(t_info *info)
 {
-	if ((info->num_philo = ft_atoi(argv[1])) < 2)
-		return (-1);
-	if ((info->time_to_die = (long)ft_atoi(argv[2])) < 1)
-		return (-1);
-	if ((info->time_to_eat = (long)ft_atoi(argv[3])) < 1)
-		return (-1);
-	if ((info->time_to_sleep = (long)ft_atoi(argv[4])) < 1)
-		return (-1);
+	sem_unlink("/forks");
+	if ((info->forks = sem_open("/forks",
+		O_CREAT | O_EXCL, 0644, info->num_philo)) == SEM_FAILED)
+		return (FAILURE);
+	sem_unlink("/for_print");
+	if ((info->for_print = sem_open("/for_print",
+		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		return (FAILURE);
+	return (SUCCESS);
+}
+
+static int		init_philo_sems(t_info *info, int idx)
+{
+	info->philos[idx].idx_sem = ft_itoa(idx + 1);
+	info->philos[idx].for_eat_name = ft_strjoin("/for_eat_",
+												info->philos[idx].idx_sem);
+	sem_unlink(info->philos[idx].for_eat_name);
+	if ((info->philos[idx].for_eat = sem_open(
+		info->philos[idx].for_eat_name,
+		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		return (FAILURE);
+	free(info->philos[idx].for_eat_name);
+	info->philos[idx].for_full_name = ft_strjoin("/for_full_",
+												ft_itoa(idx + 1));
+	sem_unlink(info->philos[idx].for_full_name);
+	if ((info->philos[idx].for_full = sem_open(
+		info->philos[idx].for_full_name,
+		O_CREAT | O_EXCL, 0644, 0)) == SEM_FAILED)
+		return (FAILURE);
+	free(info->philos[idx].for_full_name);
+	free(info->philos[idx].idx_sem);
+	return (SUCCESS);
+}
+
+static int		init_philos(t_info *info)
+{
+	int		idx;
+
+	idx = -1;
+	while (++idx < info->num_philo)
+	{
+		info->philos[idx].idx = idx;
+		if (init_philo_sems(info, idx) == FAILURE)
+			return (FAILURE);
+		info->philos[idx].cnt_eat = 0;
+		info->philos[idx].time_last_eat = get_time();
+		info->philos[idx].info = info;
+	}
+	return (SUCCESS);
+}
+
+int				init(int argc, char *argv[], t_info *info)
+{
+	if ((check_args(argc, argv) == FAILURE) ||
+		((info->num_philo = ft_atoi(argv[1])) < 2) ||
+		((info->time_to_die = (long)ft_atoi(argv[2])) < 1) ||
+		((info->time_to_eat = (long)ft_atoi(argv[3])) < 1) ||
+		((info->time_to_sleep = (long)ft_atoi(argv[4])) < 1))
+		return (FAILURE);
 	if (argc == 6)
 	{
 		if ((info->num_must_eat = (long)ft_atoi(argv[5])) < 1)
-			return (-1);
+			return (FAILURE);
 	}
 	else
 		info->num_must_eat = 0;
-	return (0);
-}
-
-int					init_sems(t_info info, t_sems *sems)
-{
-	sem_unlink("/forks");
-	if ((sems->forks = sem_open("/forks",
-		O_CREAT | O_EXCL, 0644, info.num_philo)) == SEM_FAILED)
-		return (-1);
-	sem_unlink("/for_eat");
-	if ((sems->for_eat = sem_open("/for_eat",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (-1);
-	sem_unlink("/for_print");
-	if ((sems->for_print = sem_open("/for_print",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (-1);
-	sem_unlink("/for_full");
-	if ((sems->for_full = sem_open("/for_full",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (-1);
-	sem_unlink("/for_thread");
-	if ((sems->for_thread = sem_open("/for_thread",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (-1);
-	return (0);
-}
-
-t_philo				*init_philos(t_info info, t_sems *sems)
-{
-	int			idx;
-	t_philo		*philos;
-
-	if (!(philos = (t_philo *)malloc(sizeof(t_philo) * info.num_philo)))
-		return (NULL);
-	idx = 0;
-	while (idx < info.num_philo)
-	{
-		philos[idx].idx = idx;
-		philos[idx].time_first_eat = get_current_time();
-		philos[idx].time_last_eat = get_current_time();
-		philos[idx].cnt_eat = 0;
-		philos[idx].im_dead = FALSE;
-		philos[idx].im_full = FALSE;
-		philos[idx].info = &info;
-		philos[idx].sems = sems;
-		idx++;
-	}
-	return (philos);
+	if (init_sems(info) == FAILURE)
+		return (FAILURE);
+	if (!(info->philos = malloc(sizeof(t_philo) * info->num_philo)))
+		return (FAILURE);
+	if (init_philos(info) == FAILURE)
+		return (FAILURE);
+	return (SUCCESS);
 }

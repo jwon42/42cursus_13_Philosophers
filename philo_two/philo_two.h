@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 16:23:59 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/15 19:25:41 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 15:59:37 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,65 +16,74 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <string.h>
 # include <pthread.h>
-# include <semaphore.h>
 # include <sys/time.h>
-# include <errno.h>
+# include <semaphore.h>
 
 # define TRUE 1
 # define FALSE 0
 
-int						g_cnt_dead_philos;
-int						g_cnt_full_philos;
+# define SUCCESS 0
+# define FAILURE -1
 
-typedef struct			s_info
-{
-	int					num_philo;
-	long				time_to_die;
-	long				time_to_eat;
-	long				time_to_sleep;
-	int					num_must_eat;
-}						t_info;
+# define FORK 0
+# define EAT 1
+# define SLEEP 2
+# define THINK 3
+# define DIE 4
+# define FULL 5
 
-typedef struct			s_sems
-{
-	sem_t				*forks;
-	sem_t				*for_print;
-	sem_t				*for_check;
-}						t_sems;
+struct s_info;
 
 typedef struct			s_philo
 {
 	int					idx;
-	char				*sem_idx;
+	char				*idx_sem;
+	pthread_t			thread;
+
+	int					cnt_eat;
+	uint64_t			time_last_eat;
+
 	char				*for_eat_name;
 	sem_t				*for_eat;
-	long				time_first_eat;
-	long				time_last_eat;
-	int					cnt_eat;
-	int					im_full;
-	t_info				*info;
-	t_sems				*sems;
-	pthread_t			thread;
+
+	struct s_info		*info;
 }						t_philo;
+
+typedef struct			s_info
+{
+	int					num_philo;
+	uint64_t			time_to_die;
+	uint64_t			time_to_eat;
+	uint64_t			time_to_sleep;
+	int					num_must_eat;
+
+	uint64_t			time_start;
+
+	int					full_or_die;
+	int					somebody_full;
+
+	sem_t				*forks;
+	sem_t				*for_print;
+
+	t_philo				*philos;
+}						t_info;
 
 /*
 ** init.c
 */
-int						init_info(int argc, char *argv[], t_info *info);
-int						init_sems(t_info info, t_sems *sems);
-t_philo					*init_philos(t_info info, t_sems *sems);
+int						init(int argc, char *argv[], t_info *info);
 
 /*
 ** action.c
 */
-void					start_dining(t_info info, t_philo *philos);
+int						start_dining(t_info *info);
 
 /*
 ** check.c
 */
-void					*check_status(void *arg);
+int						check_full(void *arg);
+void					*check_die(void *arg);
 
 /*
 ** utils_libft.c
@@ -88,15 +97,15 @@ char					*ft_strjoin(char const *s1, char const *s2);
 /*
 ** utils_time.c
 */
-long					get_current_time(void);
-void					ft_sleep(long time);
+uint64_t				get_time(void);
+void					ft_sleep(uint64_t time);
 
 /*
 ** utils.c
 */
 int						print_err(char *str);
-void					print_msg(char *str, t_philo *philo);
+void					print_msg(int status, t_philo *philo);
 int						check_args(int argc, char *argv[]);
-void					free_machine(t_philo *philos, t_sems *sems);
+void					free_machine(t_info *info);
 
 #endif

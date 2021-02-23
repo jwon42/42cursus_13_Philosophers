@@ -6,29 +6,29 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 16:23:27 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/11 15:32:06 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 12:37:34 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_two.h"
 
-long		get_current_time(void)
+uint64_t	get_time(void)
 {
-	long			time;
+	uint64_t		time;
 	struct timeval	tv;
 
 	if ((gettimeofday(&tv, NULL)) == -1)
 		return (0);
-	time = tv.tv_sec * 1000L + tv.tv_usec / 1000L;
+	time = tv.tv_sec * (uint64_t)1000 + tv.tv_usec / 1000L;
 	return (time);
 }
 
-void		ft_sleep(long time)
+void		ft_sleep(uint64_t time)
 {
-	long	start;
+	uint64_t	start;
 
-	start = get_current_time();
-	while ((get_current_time() - start) < time)
+	start = get_time();
+	while ((get_time() - start) < time)
 		usleep(100);
 	return ;
 }

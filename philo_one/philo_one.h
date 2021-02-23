@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 16:23:59 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/15 17:07:48 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 12:35:24 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,60 +16,74 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <string.h>
 # include <pthread.h>
 # include <sys/time.h>
 
 # define TRUE 1
 # define FALSE 0
 
-int						g_cnt_dead_philos;
-int						g_cnt_full_philos;
+# define SUCCESS 0
+# define FAILURE -1
 
-typedef struct			s_info
-{
-	int					num_philo;
-	long				time_to_die;
-	long				time_to_eat;
-	long				time_to_sleep;
-	int					num_must_eat;
-}						t_info;
+# define FORK 0
+# define EAT 1
+# define SLEEP 2
+# define THINK 3
+# define DIE 4
+# define FULL 5
+
+struct s_info;
 
 typedef struct			s_philo
 {
 	int					idx;
-	pthread_mutex_t		*fork_left;
-	pthread_mutex_t		*fork_right;
-	pthread_mutex_t		for_eat;
-	pthread_mutex_t		*for_print;
-	pthread_mutex_t		*for_check;
-	long				time_first_eat;
-	long				time_last_eat;
-	int					cnt_eat;
-	int					is_full;
-	t_info				*info;
 	pthread_t			thread;
+
+	int					fork_l;
+	int					fork_r;
+
+	int					cnt_eat;
+	uint64_t			time_last_eat;
+
+	pthread_mutex_t		for_eat;
+
+	struct s_info		*info;
 }						t_philo;
+
+typedef struct			s_info
+{
+	int					num_philo;
+	uint64_t			time_to_die;
+	uint64_t			time_to_eat;
+	uint64_t			time_to_sleep;
+	int					num_must_eat;
+
+	uint64_t			time_start;
+
+	int					full_or_die;
+	int					somebody_full;
+
+	pthread_mutex_t		*forks;
+	pthread_mutex_t		for_print;
+
+	t_philo				*philos;
+}						t_info;
 
 /*
 ** init.c
 */
-int						init_info(int argc, char *argv[], t_info *info);
-pthread_mutex_t			*init_forks(t_info info);
-t_philo					*init_philos(t_info info,
-									pthread_mutex_t *forks,
-									pthread_mutex_t *for_print,
-									pthread_mutex_t *for_check);
+int						init(int argc, char *argv[], t_info *info);
 
 /*
 ** action.c
 */
-void					start_dining(t_info info, t_philo *philos);
+int						start_dining(t_info *info);
 
 /*
 ** check.c
 */
-void					*check_status(void *arg);
+int						check_full(void *arg);
+void					*check_die(void *arg);
 
 /*
 ** utils_libft.c
@@ -80,18 +94,15 @@ int						ft_atoi(const char *str);
 /*
 ** utils_time.c
 */
-long					get_current_time(void);
-void					ft_sleep(long time);
+uint64_t				get_time(void);
+void					ft_sleep(uint64_t time);
 
 /*
 ** utils.c
 */
 int						print_err(char *str);
-void					print_msg(char *str, t_philo *philo);
+void					print_msg(int status, t_philo *philo);
 int						check_args(int argc, char *argv[]);
-void					free_machine(t_philo *philos,
-									pthread_mutex_t *forks,
-									pthread_mutex_t *for_print,
-									pthread_mutex_t *for_check);
+void					free_machine(t_info *info);
 
 #endif

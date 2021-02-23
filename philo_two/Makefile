@@ -6,7 +6,7 @@
 #    By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/15 14:54:11 by jwon              #+#    #+#              #
-#    Updated: 2021/02/11 17:36:00 by jwon             ###   ########.fr        #
+#    Updated: 2021/02/23 12:37:34 by jwon             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME	= philo_two
 
 SRCS	= init.c \
 		  action.c \
-		  status.c \
+		  check.c \
 		  utils.c \
 		  utils_libft.c \
 		  utils_time.c \

@@ -6,67 +6,68 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 17:55:12 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/15 19:03:27 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 13:03:45 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_two.h"
 
-static void		party_time(t_philo *philo)
+static void		party(t_philo *philo)
 {
-	sem_wait(philo->sems->forks);
-	print_msg("has taken a fork", philo);
-	sem_wait(philo->sems->forks);
-	print_msg("has taken a fork", philo);
+	sem_wait(philo->info->forks);
+	print_msg(FORK, philo);
+	sem_wait(philo->info->forks);
+	print_msg(FORK, philo);
 	sem_wait(philo->for_eat);
-	philo->time_last_eat = get_current_time();
+	print_msg(EAT, philo);
+	philo->time_last_eat = get_time();
 	philo->cnt_eat++;
-	print_msg("is eating", philo);
 	sem_post(philo->for_eat);
 	ft_sleep(philo->info->time_to_eat);
-	sem_post(philo->sems->forks);
-	sem_post(philo->sems->forks);
+	sem_post(philo->info->forks);
+	sem_post(philo->info->forks);
 }
 
-static void		*main_loop(void *arg)
+static void		*routine(void *arg)
 {
-	t_philo			*philo;
-	pthread_t		monitor;
+	t_philo		*philo;
 
 	philo = (t_philo *)arg;
 	if (philo->idx % 2)
-		ft_sleep(philo->info->time_to_eat);
-	pthread_create(&monitor, NULL, check_status, arg);
-	sem_wait(philo->sems->for_check);
-	while (g_cnt_dead_philos == 0 &&
-		g_cnt_full_philos < philo->info->num_philo)
+		ft_sleep(10);
+	philo->time_last_eat = get_time();
+	while (philo->info->full_or_die == FALSE)
 	{
-		sem_post(philo->sems->for_check);
-		party_time(philo);
-		print_msg("is sleeping", philo);
+		party(philo);
+		if (philo->info->num_must_eat && check_full(philo))
+			break ;
+		print_msg(SLEEP, philo);
 		ft_sleep(philo->info->time_to_sleep);
-		print_msg("is thinking", philo);
-		sem_wait(philo->sems->for_check);
+		print_msg(THINK, philo);
 	}
-	sem_post(philo->sems->for_check);
-	pthread_detach(monitor);
 	return (NULL);
 }
 
-void			start_dining(t_info info, t_philo *philos)
+int				start_dining(t_info *info)
 {
-	int		idx;
+	int			idx;
+	pthread_t	tid;
 
 	idx = 0;
-	while (idx < info.num_philo)
+	info->time_start = get_time();
+	while (idx < info->num_philo)
 	{
-		pthread_create(&philos[idx].thread, NULL, main_loop, &philos[idx]);
+		if (pthread_create(&info->philos[idx].thread, NULL, routine, &info->philos[idx]))
+			return (FAILURE);
 		idx++;
 	}
+	pthread_create(&tid, NULL, check_die, info->philos);
+	pthread_detach(tid);
 	idx = 0;
-	while (idx < info.num_philo)
+	while (idx < info->num_philo)
 	{
-		pthread_join(philos[idx].thread, NULL);
+		pthread_join(info->philos[idx].thread, NULL);
 		idx++;
 	}
+	return (SUCCESS);
 }

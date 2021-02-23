@@ -6,34 +6,53 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:06:58 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/15 19:15:58 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/23 15:54:40 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_two.h"
 
-int			print_err(char *str)
+int				print_err(char *str)
 {
 	printf("Error : %s\n", str);
 	return (EXIT_FAILURE);
 }
 
-void		print_msg(char *str, t_philo *philo)
+static char		*get_msg(int status)
 {
-	long		time;
+	if (status == FORK)
+		return ("has taken a fork");
+	else if (status == EAT)
+		return ("is eating");
+	else if (status == SLEEP)
+		return ("is sleeping");
+	else if (status == THINK)
+		return ("is thinking");
+	else if (status == DIE)
+		return ("died");
+	else if (status == FULL)
+		return ("All philosophers have finished eating :)");
+	return (NULL);
+}
 
-	time = get_current_time() - philo->time_first_eat;
-	sem_wait(philo->sems->for_check);
-	if (g_cnt_dead_philos == 0 &&
-		g_cnt_full_philos < philo->info->num_philo)
+void			print_msg(int status, t_philo *philo)
+{
+	sem_wait(philo->info->for_print);
+	if (philo->info->full_or_die == FALSE)
 	{
-		sem_post(philo->sems->for_check);
-		sem_wait(philo->sems->for_print);
-		printf("%10ldms | philosopher %d %s\n", time, philo->idx + 1, str);
-		sem_post(philo->sems->for_print);
-		return ;
+		printf("%10lldms | ", get_time() - philo->info->time_start);
+		if (status == FULL)
+			printf("%s\n", get_msg(status));
+		else
+			printf("philosopher %d %s\n", philo->idx + 1, get_msg(status));
+		if (status == DIE || status == FULL)
+		{
+			philo->info->full_or_die = TRUE;
+			sem_post(philo->info->for_print);
+			return ;
+		}
 	}
-	sem_post(philo->sems->for_check);
+	sem_post(philo->info->for_print);
 }
 
 int			check_args(int argc, char *argv[])
@@ -58,25 +77,22 @@ int			check_args(int argc, char *argv[])
 	return (0);
 }
 
-void		free_machine(t_philo *philos, t_sems *sems)
+void		free_machine(t_info *info)
 {
 	int		idx;
 	int		end;
 
 	idx = 0;
-	end = philos[idx].info->num_philo;
+	end = info->num_philo;
 	while (idx < end)
 	{
-		sem_close(philos[idx].for_eat);
-		sem_unlink(philos[idx].for_eat_name);
-		free(philos[idx].sem_idx);
-		free(philos[idx].for_eat_name);
+		sem_close(info->philos[idx].for_eat);
+		sem_unlink(info->philos[idx].for_eat_name);
 		idx++;
 	}
-	sem_close(sems->forks);
+	free(info->philos);
+	sem_close(info->forks);
 	sem_unlink("/forks");
-	sem_close(sems->for_print);
+	sem_close(info->for_print);
 	sem_unlink("/for_print");
-	sem_close(sems->for_check);
-	sem_unlink("/for_check");
 }
