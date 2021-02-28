@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 15:44:40 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/28 19:40:48 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/28 20:05:50 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static int		init_philo_sems(t_info *info, int idx)
 	if ((info->philos[idx].for_eat = sem_open(
 		info->philos[idx].for_eat_name,
 		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-			return (FAILURE);
+		return (FAILURE);
 	free(info->philos[idx].for_eat_name);
 	free(info->philos[idx].idx_sem);
 	return (SUCCESS);

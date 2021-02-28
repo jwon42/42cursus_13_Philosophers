@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 17:18:15 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/28 19:39:12 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/28 20:05:10 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void		*check_full(void *arg)
 {
-	int 		cnt;
+	int			cnt;
 	t_philo		*philo;
 
 	philo = (t_philo *)arg;
@@ -23,7 +23,7 @@ void		*check_full(void *arg)
 	{
 		sem_wait(philo->info->for_full);
 		if (cnt == philo->info->num_philo)
-			break;
+			break ;
 		cnt++;
 	}
 	print_msg(FULL, philo);
