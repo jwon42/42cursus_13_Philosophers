@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:06:58 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:21:42 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/28 19:42:45 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ void			print_msg(int status, t_philo *philo)
 			printf("philosopher %d %s\n", philo->idx + 1, get_msg(status));
 		if (status == DIE || status == FULL)
 		{
+			sem_wait(philo->info->for_finish);
 			philo->info->full_or_die = TRUE;
+			sem_post(philo->info->for_finish);
 			sem_post(philo->info->for_print);
 			return ;
 		}
@@ -95,4 +97,6 @@ void			free_machine(t_info *info)
 	sem_unlink("/forks");
 	sem_close(info->for_print);
 	sem_unlink("/for_print");
+	sem_close(info->for_finish);
+	sem_unlink("/for_finish");
 }

@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:06:58 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:17:54 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/24 15:56:30 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ void			print_msg(int status, t_philo *philo)
 			printf("philosopher %d %s\n", philo->idx + 1, get_msg(status));
 		if (status == DIE || status == FULL)
 		{
+			pthread_mutex_lock(&philo->info->for_finish);
 			philo->info->full_or_die = TRUE;
+			pthread_mutex_unlock(&philo->info->for_finish);
 			pthread_mutex_unlock(&philo->info->for_print);
 			return ;
 		}
@@ -93,6 +95,7 @@ void			free_machine(t_info *info)
 			free(info->forks);
 		}
 		pthread_mutex_destroy(&info->for_print);
+		pthread_mutex_destroy(&info->for_finish);
 		if (info->philos)
 		{
 			idx = 0;

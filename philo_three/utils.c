@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 14:06:58 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:20:32 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/28 19:40:29 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,16 +38,16 @@ static char		*get_msg(int status)
 void			print_msg(int status, t_philo *philo)
 {
 	sem_wait(philo->info->for_print);
-	if (philo->im_dead == FALSE)
+	printf("%10lldms | ", get_time() - philo->info->time_start);
+	if (status == FULL)
 	{
-		printf("%10lldms | ", get_time() - philo->info->time_start);
-		if (status == FULL)
-			printf("%s\n", get_msg(status));
-		else
-			printf("philosopher %d %s\n", philo->idx + 1, get_msg(status));
-		if (status == DIE || status == FULL)
-			exit(EXIT_SUCCESS);
+		printf("%s\n", get_msg(status));
+		free_machine(philo->info);
+		exit(EXIT_SUCCESS);
 	}
+	printf("philosopher %d %s\n", philo->idx + 1, get_msg(status));
+	if (status == DIE)
+		exit(EXIT_SUCCESS);
 	sem_post(philo->info->for_print);
 }
 
@@ -80,20 +80,18 @@ void			free_machine(t_info *info)
 
 	idx = 0;
 	end = info->num_philo;
-	if (info->num_must_eat)
-		kill(info->cnt_pid, SIGKILL);
 	while (idx < end)
 	{
 		kill(info->philos[idx].pid, SIGKILL);
 		sem_close(info->philos[idx].for_eat);
 		sem_unlink(info->philos[idx].for_eat_name);
-		sem_close(info->philos[idx].for_full);
-		sem_unlink(info->philos[idx].for_full_name);
 		idx++;
 	}
 	free(info->philos);
 	sem_close(info->forks);
 	sem_unlink("/forks");
+	sem_close(info->for_full);
+	sem_unlink("/for_full");
 	sem_close(info->for_print);
 	sem_unlink("/for_print");
 }

@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 15:44:40 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:01:32 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/25 20:22:46 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,27 +16,29 @@ static int		init_sems(t_info *info)
 {
 	sem_unlink("/forks");
 	if ((info->forks = sem_open("/forks",
-		O_CREAT | O_EXCL, 0644, info->num_philo)) == SEM_FAILED)
+		O_CREAT, 0644, info->num_philo)) == SEM_FAILED)
 		return (FAILURE);
 	sem_unlink("/for_print");
 	if ((info->for_print = sem_open("/for_print",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		O_CREAT, 0644, 1)) == SEM_FAILED)
+		return (FAILURE);
+	sem_unlink("/for_finish");
+	if ((info->for_finish = sem_open("/for_finish",
+		O_CREAT, 0644, 1)) == SEM_FAILED)
 		return (FAILURE);
 	return (SUCCESS);
 }
 
-static int		init_philo_sems(t_info *info, int idx)
+static int		init_philo_sems(t_info *info, int idx, char *idx_sem)
 {
-	info->philos[idx].idx_sem = ft_itoa(idx + 1);
-	info->philos[idx].for_eat_name = ft_strjoin("/for_eat_",
-												info->philos[idx].idx_sem);
+	info->philos[idx].for_eat_name = ft_strjoin("/for_eat_", idx_sem);
 	sem_unlink(info->philos[idx].for_eat_name);
 	if ((info->philos[idx].for_eat = sem_open(
 		info->philos[idx].for_eat_name,
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		O_CREAT, 0644, 1)) == SEM_FAILED)
 		return (FAILURE);
-	free(info->philos[idx].idx_sem);
 	free(info->philos[idx].for_eat_name);
+	info->philos[idx].for_eat_name = NULL;
 	return (SUCCESS);
 }
 
@@ -47,9 +49,11 @@ static int		init_philos(t_info *info)
 	idx = 0;
 	while (idx < info->num_philo)
 	{
+		info->philos[idx].idx_sem = ft_itoa(idx + 1);
 		info->philos[idx].idx = idx;
-		if (init_philo_sems(info, idx) == FAILURE)
+		if (init_philo_sems(info, idx, info->philos[idx].idx_sem) == FAILURE)
 			return (FAILURE);
+		free(info->philos[idx].idx_sem);
 		info->philos[idx].cnt_eat = 0;
 		info->philos[idx].time_last_eat = get_time();
 		info->philos[idx].info = info;

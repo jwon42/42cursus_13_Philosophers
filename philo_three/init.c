@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 15:44:40 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:04:11 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/28 19:40:48 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@ static int		init_sems(t_info *info)
 	sem_unlink("/forks");
 	if ((info->forks = sem_open("/forks",
 		O_CREAT | O_EXCL, 0644, info->num_philo)) == SEM_FAILED)
+		return (FAILURE);
+	sem_unlink("/for_full");
+	if ((info->for_full = sem_open("/for_full",
+		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
 		return (FAILURE);
 	sem_unlink("/for_print");
 	if ((info->for_print = sem_open("/for_print",
@@ -34,16 +38,8 @@ static int		init_philo_sems(t_info *info, int idx)
 	if ((info->philos[idx].for_eat = sem_open(
 		info->philos[idx].for_eat_name,
 		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (FAILURE);
+			return (FAILURE);
 	free(info->philos[idx].for_eat_name);
-	info->philos[idx].for_full_name = ft_strjoin("/for_full_",
-												ft_itoa(idx + 1));
-	sem_unlink(info->philos[idx].for_full_name);
-	if ((info->philos[idx].for_full = sem_open(
-		info->philos[idx].for_full_name,
-		O_CREAT | O_EXCL, 0644, 0)) == SEM_FAILED)
-		return (FAILURE);
-	free(info->philos[idx].for_full_name);
 	free(info->philos[idx].idx_sem);
 	return (SUCCESS);
 }
@@ -58,6 +54,7 @@ static int		init_philos(t_info *info)
 		info->philos[idx].idx = idx;
 		if (init_philo_sems(info, idx) == FAILURE)
 			return (FAILURE);
+		info->philos[idx].im_full = FALSE;
 		info->philos[idx].cnt_eat = 0;
 		info->philos[idx].time_last_eat = get_time();
 		info->philos[idx].info = info;

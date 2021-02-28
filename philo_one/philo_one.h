@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 16:23:59 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 12:35:24 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/24 15:56:30 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct			s_info
 
 	pthread_mutex_t		*forks;
 	pthread_mutex_t		for_print;
+	pthread_mutex_t		for_finish;
 
 	t_philo				*philos;
 }						t_info;

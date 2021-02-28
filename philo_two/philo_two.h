@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 16:23:59 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 15:59:37 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/24 15:56:00 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct			s_info
 
 	sem_t				*forks;
 	sem_t				*for_print;
+	sem_t				*for_finish;
 
 	t_philo				*philos;
 }						t_info;

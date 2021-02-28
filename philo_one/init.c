@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 15:44:40 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:17:03 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/24 15:56:30 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ static int		init_mutexes(t_info *info)
 	int		idx;
 
 	pthread_mutex_init(&info->for_print, NULL);
+	pthread_mutex_init(&info->for_finish, NULL);
 	if (!(info->forks = malloc(sizeof(pthread_mutex_t) * info->num_philo)))
 		return (FAILURE);
 	idx = 0;

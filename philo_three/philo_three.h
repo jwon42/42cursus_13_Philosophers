@@ -6,7 +6,7 @@
 /*   By: jwon <jwon@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 16:23:59 by jwon              #+#    #+#             */
-/*   Updated: 2021/02/23 16:20:06 by jwon             ###   ########.fr       */
+/*   Updated: 2021/02/28 19:40:42 by jwon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,15 +42,13 @@ typedef struct			s_philo
 	char				*idx_sem;
 	pid_t				pid;
 
-	int					im_dead;
+	int					im_full;
 
 	int					cnt_eat;
 	uint64_t			time_last_eat;
 
 	char				*for_eat_name;
 	sem_t				*for_eat;
-	char				*for_full_name;
-	sem_t				*for_full;
 
 	struct s_info		*info;
 }						t_philo;
@@ -65,9 +63,8 @@ typedef struct			s_info
 
 	uint64_t			time_start;
 
-	pid_t				cnt_pid;
-
 	sem_t				*forks;
+	sem_t				*for_full;
 	sem_t				*for_print;
 
 	t_philo				*philos;
@@ -86,8 +83,8 @@ int						start_dining(t_info *info);
 /*
 ** check.c
 */
-void					check_full(t_info *info);
-void					*check_die(void *arg);
+void					*check_full(void *arg);
+void					*check_status(void *arg);
 
 /*
 ** utils_libft.c
